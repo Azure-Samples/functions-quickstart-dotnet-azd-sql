@@ -265,3 +265,9 @@ __pycache__/
 
 # Ignore sqlcmd binaries and archives
 sqlcmd*
+
+# TypeScript build output
+dist/
+
+# npm package lock
+package-lock.json
