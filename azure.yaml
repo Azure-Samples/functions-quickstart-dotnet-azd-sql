@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: functions-quickstart-dotnet-azd-sql
+name: functions-quickstart-typescript-azd-sql
 metadata:
-  template: functions-quickstart-dotnet-azd-sql@1.0.1
+  template: functions-quickstart-typescript-azd-sql@1.0.1
 services:
   api:
     project: .
-    language: dotnet
+    language: js
     host: function
 hooks:
   postprovision:

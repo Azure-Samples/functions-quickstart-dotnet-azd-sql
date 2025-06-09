@@ -1,4 +1,4 @@
-# Azure Functions with SQL Triggers and Bindings (C#)
+# Azure Functions with SQL Triggers and Bindings (TypeScript)
 
 An Azure Functions QuickStart project that demonstrates how to use both SQL Triggers and SQL Output Bindings with the Azure Developer CLI (azd) for rapid, event-driven integration with Azure SQL Database.
 
@@ -30,6 +30,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
 * SQL Output Binding
 * SQL Trigger
+* TypeScript v4 programming model with Node.js 22.x
 * Azure Functions Flex Consumption plan
 * Azure Developer CLI (azd) integration for easy deployment
 * Infrastructure as Code using Bicep templates
@@ -38,7 +39,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- [Node.js 22.x](https://nodejs.org/) or later
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools)
 - [Azure Developer CLI (azd)](https://docs.microsoft.com/azure/developer/azure-developer-cli/install-azd)
 - An Azure subscription
@@ -47,11 +48,21 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
 1. Clone this repository
    ```bash
-   git clone https://github.com/Azure-Samples/functions-quickstart-dotnet-azd-sql.git
-   cd functions-quickstart-dotnet-azd-sql
+   git clone https://github.com/Azure-Samples/functions-quickstart-typescript-azd-sql.git
+   cd functions-quickstart-typescript-azd-sql
    ```
 
-1. Provision Azure resources using azd
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Build the TypeScript code
+   ```bash
+   npm run build
+   ```
+
+4. Provision Azure resources using azd
    ```bash
    azd provision
    ```
@@ -66,148 +77,93 @@ This serverless architecture enables scalable, event-driven data ingestion and p
      "IsEncrypted": false,
      "Values": {
        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-       "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+       "FUNCTIONS_WORKER_RUNTIME": "node",
        "WEBSITE_SITE_NAME": "ToDo-local",
-       "AZURE_SQL_CONNECTION_STRING_KEY": "Server=tcp:<server>.database.windows.net,1433;Database=ToDo;Authentication=Active Directory Default; TrustServerCertificate=True; Encrypt=True;"
+       "AZURE_SQL_CONNECTION_STRING_KEY": "Server=..."
      }
    }
    ```
 
-   The `azd` command automatically sets up the required connection strings and application settings.
-
-1. Start the function locally
+5. Deploy the application code to Azure
    ```bash
-   func start
+   azd deploy
    ```
-   Or use VS Code to run the project with the built-in Azure Functions extension by pressing F5.
 
-1. Test the function locally by sending a POST request to the HTTP endpoint:
-   ```json
-   {
-     "id": "b1a7c1e2-1234-4f56-9abc-1234567890ab",
-     "order": 1,
-     "title": "Example: Walk the dog",
-     "url": "https://example.com/todo/1",
-     "completed": false
-   }
-   ```
-   You can use tools like curl, Postman, or httpie:
-   ```bash
-   curl -X POST http://localhost:7071/api/httptrigger-sql-output \
-     -H "Content-Type: application/json" \
-     -d '{"id":"b1a7c1e2-1234-4f56-9abc-1234567890ab","order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
-   ```
-   The function will write the item to the SQL database and return the created object.
-
-1. Deploy to Azure
-   ```bash
-   azd up
-   ```
-   This will build your function app and deploy it to Azure. The deployment process:
-   - Checks for any bicep changes using `azd provision`
-   - Builds the .NET project using `azd package`
-   - Publishes the function app using `azd deploy`
-   - Updates application settings in Azure
-
-1. Test the deployed function by sending a POST request to the Azure Function endpoint (see Azure Portal for the URL).
+6. Test the deployed function by sending a POST request to the Azure Function endpoint (see Azure Portal for the URL).
 
 ## Understanding the Functions
 
-### SQL Output Binding Function (`sql_output_http_trigger.cs`)
+### HTTP Trigger with SQL Output Binding
 
-This function receives HTTP POST requests and writes the payload to the SQL database using the SQL output binding. The key environment variable is:
+**File**: `src/functions/httpTriggerSqlOutput.ts`
 
-- `AZURE_SQL_CONNECTION_STRING_KEY`: The identity-based connection string for the Azure SQL Database loaded from app settings or env vars
+This function demonstrates how to use an HTTP trigger to receive data and write it to Azure SQL Database using an output binding.
 
-**Source code:**
-```csharp
-[Function("httptrigger-sql-output")]
-[SqlOutput("[dbo].[ToDo]", connectionStringSetting: "AZURE_SQL_CONNECTION_STRING_KEY")]
-public async Task<ToDoItem> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "httptrigger-sql-output")] HttpRequestData req)
-{
-    var todoitem = await req.ReadFromJsonAsync<ToDoItem>() ?? new ToDoItem
-    {
-        Id = Guid.NewGuid(),
-        order = 1,
-        title = "Example: Walk the dog",
-        url = "https://example.com/todo/1",
-        completed = false
-    };
-    return todoitem;
-}
-```
-- Accepts a JSON body matching the `ToDoItem` class (see below).
-- Writes the item to the `[dbo].[ToDo]` table in SQL.
-- Returns the created object as the HTTP response.
+- **Trigger**: HTTP POST request
+- **Input**: ToDoItem JSON object in request body
+- **Output**: Same ToDoItem written to `dbo.ToDo` table in SQL Database
+- **Response**: Returns the created ToDoItem with HTTP 200 status
 
-### SQL Trigger Function (`sql_trigger.cs`)
+### SQL Trigger
 
-This function responds to changes in the SQL database. It enables event-driven processing whenever rows in the `[dbo].[ToDo]` table are inserted, updated, or deleted.
+**File**: `src/functions/sqlTriggerToDo.ts`
 
-**Source code:**
-```csharp
-[Function("ToDoTrigger")]
-public static void Run(
-    [SqlTrigger("[dbo].[ToDo]", "AZURE_SQL_CONNECTION_STRING_KEY")] IReadOnlyList<SqlChange<ToDoItem>> changes,
-    FunctionContext context)
-{
-    var logger = context.GetLogger("ToDoTrigger");
-    foreach (SqlChange<ToDoItem> change in changes)
-    {
-        ToDoItem toDoItem = change.Item;
-        logger.LogInformation($"Change operation: {change.Operation}");
-        logger.LogInformation($"Id: {toDoItem.Id}, Title: {toDoItem.title}, Url: {toDoItem.url}, Completed: {toDoItem.completed}");
-    }
-}
-```
-- Monitors the `[dbo].[ToDo]` table for changes.
-- Logs the operation type and details of each changed item.
+This function demonstrates how to react to changes (inserts, updates, deletes) in the SQL Database table.
 
-### ToDoItem Model (`ToDoItem.cs`)
+- **Trigger**: Changes to `dbo.ToDo` table
+- **Processing**: Logs details about each change operation
+- **Use cases**: Auditing, notifications, downstream processing
 
-```csharp
-public class ToDoItem
-{
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
-    public int? order { get; set; }
-    public required string title { get; set; }
-    public required string url { get; set; }
-    public bool? completed { get; set; }
-}
-```
+## Local Development
 
-- The JSON property `id` maps to the C# property `Id`.
-- All other properties map directly by name and type.
+1. Start the Azurite storage emulator (required for local development)
+   ```bash
+   azurite --silent --location c:\azurite --debug c:\azurite\debug.log
+   ```
+
+2. Start the function app locally
+   ```bash
+   npm run start
+   ```
+
+3. Test the HTTP trigger function using the test file:
+   ```bash
+   # The function will be available at:
+   # POST http://localhost:7071/api/httptrigger-sql-output
+   ```
 
 ## Monitoring and Logs
 
-You can monitor your function in the Azure Portal:
-1. Navigate to your function app in the Azure Portal
-2. Select "Functions" from the left menu
-3. Click on your function (SqlOutputBindingHttpTriggerCSharp1 or ToDoTrigger)
-4. Select "Monitor" to view execution logs
+The functions include Application Insights integration for monitoring and logging. You can view:
 
-Use the "Live Metrics" feature to see real-time information when testing.
+- Function execution logs
+- Performance metrics
+- Error tracking
+- Custom telemetry
+
+Access logs through:
+- Azure Portal > Function App > Monitor
+- Application Insights resource
+- Azure Monitor Logs
 
 ## SQL Trigger Testing
 
-1. Make a change to the `[dbo].[ToDo]` table in your Azure SQL Database (insert, update, or delete a row).
-2. The `ToDoTrigger` function will automatically execute and log the change.
-3. You can view the logs locally in your terminal or in the Azure Portal under your Function App's "Monitor" tab.
+To test the SQL trigger function:
 
-**Example Log Output:**
-```
-Change operation: Insert
-Id: b1a7c1e2-1234-4f56-9abc-1234567890ab, Title: Example: Walk the dog, Url: https://example.com/todo/1, Completed: False
-```
+1. Ensure the function app is running (locally or in Azure)
+2. Insert, update, or delete records in the `dbo.ToDo` table
+3. Observe the logs to see the trigger function executing
 
-This enables you to build reactive, event-driven workflows based on changes in your SQL data.
+Example SQL to trigger the function:
+```sql
+INSERT INTO dbo.ToDo (id, title, url, completed) 
+VALUES (NEWID(), 'Test Item', 'https://example.com', 0);
+```
 
 ## Resources
 
-- [Azure Functions SQL Bindings & Triggers Documentation (Microsoft Learn)](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-azure-sql?tabs=isolated-process%2Cextensionv4&pivots=programming-language-csharp)
+- [Azure Functions SQL Bindings & Triggers Documentation (Microsoft Learn)](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-azure-sql?tabs=isolated-process%2Cextensionv4&pivots=programming-language-javascript)
 - [Azure Functions Documentation](https://docs.microsoft.com/azure/azure-functions/)
 - [Azure SQL Database Documentation](https://docs.microsoft.com/azure/azure-sql/)
-- [Azure Developer CLI Documentation](https://docs.microsoft.com/azure/developer/azure-developer-cli/)
+- [Azure Developer CLI Documentation](https://docs.microsoft.com/azure/developer/azure-developer-cli/install-azd/)
+- [TypeScript Azure Functions Programming Model v4](https://docs.microsoft.com/azure/azure-functions/functions-reference-node)

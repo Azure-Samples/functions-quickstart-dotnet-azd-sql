@@ -1,0 +1,25 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": ["post"]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "name": "todoItems",
+      "type": "sql",
+      "direction": "out",
+      "commandText": "dbo.ToDo",
+      "connectionStringSetting": "AZURE_SQL_CONNECTION_STRING_KEY"
+    }
+  ],
+  "scriptFile": "../dist/src/functions/httpTriggerSqlOutput.js",
+  "entryPoint": "httpTriggerSqlOutput"
+}
