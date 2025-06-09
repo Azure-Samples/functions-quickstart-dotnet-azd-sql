@@ -21,7 +21,7 @@ if [ ! -f "./app/local.settings.json" ]; then
     "IsEncrypted": "false",
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "FUNCTIONS_WORKER_RUNTIME": "node",
         "WEBSITE_SITE_NAME": "ToDo-local",
         "AZURE_SQL_CONNECTION_STRING_KEY": "$SqlConnection"
     }
