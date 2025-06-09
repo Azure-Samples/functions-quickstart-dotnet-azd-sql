@@ -2,7 +2,7 @@
   "name": "functions-quickstart-typescript-azd-sql",
   "version": "1.0.0",
   "description": "Azure Functions with SQL Triggers and Bindings (TypeScript)",
-  "main": "dist/src/functions/*.js",
+  "main": "dist/src/app.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

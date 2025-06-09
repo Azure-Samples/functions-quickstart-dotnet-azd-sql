@@ -129,7 +129,7 @@ This function demonstrates how to react to changes (inserts, updates, deletes) i
 3. Test the HTTP trigger function using the test file:
    ```bash
    # The function will be available at:
-   # POST http://localhost:7071/api/httptrigger-sql-output
+   # POST http://localhost:7071/api/httpTriggerSqlOutput
    ```
 
 ## Monitoring and Logs

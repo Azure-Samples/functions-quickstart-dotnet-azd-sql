@@ -1,5 +1,5 @@
 ### Test HTTP Trigger with SQL Output
-POST http://localhost:7071/api/httptrigger-sql-output
+POST http://localhost:7071/api/httpTriggerSqlOutput
 Content-Type: application/json
 
 {
