@@ -42,6 +42,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 - [Node.js 22.x](https://nodejs.org/) or later
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools)
 - [Azure Developer CLI (azd)](https://docs.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- [Azurite](https://github.com/Azure/Azurite) (for local Azure Storage emulation; can be run with `npx azurite`)
 - An Azure subscription
 
 ### Quickstart
@@ -73,14 +74,18 @@ This serverless architecture enables scalable, event-driven data ingestion and p
    }
    ```
    The `azd` command automatically sets up the required connection strings and application settings.
-3. Start the function locally
+3. Start Azurite (local storage emulator)
+   ```bash
+   npx azurite --location ~/azurite-data
+   ```
+4. Start the function locally
    ```bash
    npm install
    npm run build
    func start
    ```
    Or use VS Code to run the project with the built-in Azure Functions extension by pressing F5.
-4. Test the function locally by sending a POST request to the HTTP endpoint:
+5. Test the function locally by sending a POST request to the HTTP endpoint:
    ```json
    {
      "id": "b1a7c1e2-1234-4f56-9abc-1234567890ab",
@@ -97,7 +102,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
      -d '{"id":"b1a7c1e2-1234-4f56-9abc-1234567890ab","order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
    ```
    The function will write the item to the SQL database and return the created object.
-5. Deploy to Azure
+6. Deploy to Azure
    ```bash
    azd up
    ```
@@ -106,7 +111,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
    - Builds the TypeScript project using `azd package`
    - Publishes the function app using `azd deploy`
    - Updates application settings in Azure
-6. Test the deployed function by sending a POST request to the Azure Function endpoint (see Azure Portal for the URL).
+7. Test the deployed function by sending a POST request to the Azure Function endpoint (see Azure Portal for the URL).
 
 ## Understanding the Functions
 
