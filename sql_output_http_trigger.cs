@@ -30,7 +30,11 @@ public class SqlOutputBindingHttpTriggerCSharp
         return new OutputType
         {
             ToDoItem = toDoItem,
-            HttpResponse = new OkObjectResult(toDoItem) { StatusCode = 200 },
+            HttpResponse = new CreatedResult
+            (
+                req.Url,
+                toDoItem
+            )
         };
     }
 }
