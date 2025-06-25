@@ -41,6 +41,7 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools)
 - [Azure Developer CLI (azd)](https://docs.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- [Azurite](https://github.com/Azure/Azurite) (for local Azure Storage emulation; can be run with `npx azurite`)
 - An Azure subscription
 
 ### Quickstart
@@ -74,6 +75,11 @@ This serverless architecture enables scalable, event-driven data ingestion and p
    ```
 
    The `azd` command automatically sets up the required connection strings and application settings.
+
+1. Start Azurite (local storage emulator)
+   ```bash
+   npx azurite --location ~/azurite-data
+   ```
 
 1. Start the function locally
    ```bash
