@@ -1,0 +1,11 @@
+### Test HTTP Trigger with SQL Output
+POST http://localhost:7071/api/httptrigger-sql-output
+Content-Type: application/json
+
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "order": 1,
+  "title": "Test Todo Item",
+  "url": "https://example.com",
+  "completed": false
+}
