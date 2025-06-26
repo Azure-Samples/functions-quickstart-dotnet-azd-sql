@@ -39,8 +39,35 @@ $SQLCMD_VERSION = "v1.8.2"
 $sqlcmdPath = Join-Path $SCRIPT_DIR 'sqlcmd'
 if (-not (Test-Path $sqlcmdPath)) {
     Write-Host "sqlcmd not found in $SCRIPT_DIR. Downloading..."
-    $uname = $(uname -s).ToLower()
-    $arch = $(uname -m)
+    #$uname = $(uname -s).ToLower()
+    #$arch = $(uname -m)
+
+    # Detect OS and architecture in a cross-platform way
+    $uname = $null
+    $arch = $null
+
+    if ($IsWindows) {
+        $uname = 'windows'
+    } elseif ($IsMacOS) {
+        $uname = 'darwin'
+    } elseif ($IsLinux) {
+        $uname = 'linux'
+    } else {
+        Write-Host "Unsupported OS"
+        exit 1
+    }
+
+    $archRaw = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
+    switch ($archRaw) {
+        'X64'     { $arch = 'x86_64' }
+        'Arm64'   { $arch = 'arm64' }
+        default   {
+            Write-Host "Unsupported architecture: $archRaw"
+            exit 1
+        }
+    }
+
+
     if ($uname -eq 'darwin') {
         if ($arch -eq 'arm64') {
             $URL = "$($SQLCMD_BASEURL)$($SQLCMD_VERSION)/sqlcmd-darwin-arm64.tar.bz2"
@@ -57,7 +84,8 @@ if (-not (Test-Path $sqlcmdPath)) {
         if ($arch -eq 'x86_64' -or $arch -eq 'amd64') {
             $URL = "$($SQLCMD_BASEURL)$($SQLCMD_VERSION)/sqlcmd-windows-amd64.zip"
         } elseif ($arch -eq 'arm64' -or $arch -eq 'aarch64') {
-            $URL = "$($SQLCMD_BASEURL)$($SQLCMD_VERSION)/sqlcmd-windows-arm.zip"
+            #$URL = "$($SQLCMD_BASEURL)$($SQLCMD_VERSION)/sqlcmd-windows-arm.zip" - This is causing issues, so we use the amd64 version for now
+            $URL = "$($SQLCMD_BASEURL)$($SQLCMD_VERSION)/sqlcmd-windows-amd64.zip"
         } else {
             Write-Host "Unsupported Windows architecture: $arch"
             exit 1
@@ -74,14 +102,14 @@ if (-not (Test-Path $sqlcmdPath)) {
     } elseif ($URL -like '*.tar.gz') {
         tar -xzf $archivePath -C $SCRIPT_DIR
     } elseif ($URL -like '*.zip') {
-        Expand-Archive -Path $archivePath -DestinationPath $SCRIPT_DIR
+        Expand-Archive -Path $archivePath -DestinationPath $SCRIPT_DIR -Force
     } else {
         Write-Host "Unknown archive format for $URL"
         exit 1
     }
     Remove-Item $archivePath -Force
-    if ($uname -ne 'windows_nt') {
-        chmod +x $sqlcmdPath
+    if ($uname -ne 'windows') {
+        & chmod +x $sqlcmdPath
     }
 }
 

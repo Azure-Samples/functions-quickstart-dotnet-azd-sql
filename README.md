@@ -76,7 +76,21 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
    The `azd` command automatically sets up the required connection strings and application settings.
 
+1. Execute the `configuresql.ps1` script to set up the Azure SQL database:
+
+   ```bash
+   cd infra\scripts
+   .\configuresql.ps1
+   ```
+
+1. Execute the `setuplocalenvironment.ps1` script in order to configure everything for you to run the Azure Function locally:
+
+   ```bash
+   .\setuplocalenvironment.ps1
+   ```
+
 1. Start Azurite (local storage emulator)
+
    ```bash
    npx azurite --location ~/azurite-data
    ```
@@ -90,7 +104,6 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 1. Test the function locally by sending a POST request to the HTTP endpoint:
    ```json
    {
-     "id": "b1a7c1e2-1234-4f56-9abc-1234567890ab",
      "order": 1,
      "title": "Example: Walk the dog",
      "url": "https://example.com/todo/1",
@@ -101,10 +114,10 @@ This serverless architecture enables scalable, event-driven data ingestion and p
    ```bash
    curl -X POST http://localhost:7071/api/httptrigger-sql-output \
      -H "Content-Type: application/json" \
-     -d '{"id":"b1a7c1e2-1234-4f56-9abc-1234567890ab","order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
+     -d '{"order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
    ```
    The function will write the item to the SQL database and return the created object.
-
+   
 1. Deploy to Azure
    ```bash
    azd up
