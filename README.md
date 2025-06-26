@@ -104,7 +104,6 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 1. Test the function locally by sending a POST request to the HTTP endpoint:
    ```json
    {
-     "id": "b1a7c1e2-1234-4f56-9abc-1234567890ab",
      "order": 1,
      "title": "Example: Walk the dog",
      "url": "https://example.com/todo/1",
@@ -115,10 +114,10 @@ This serverless architecture enables scalable, event-driven data ingestion and p
    ```bash
    curl -X POST http://localhost:7071/api/httptrigger-sql-output \
      -H "Content-Type: application/json" \
-     -d '{"id":"b1a7c1e2-1234-4f56-9abc-1234567890ab","order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
+     -d '{"order":1,"title":"Example: Walk the dog","url":"https://example.com/todo/1","completed":false}'
    ```
    The function will write the item to the SQL database and return the created object.
-
+   
 1. Deploy to Azure
    ```bash
    azd up
