@@ -76,6 +76,13 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
    The `azd` command automatically sets up the required connection strings and application settings.
 
+1. Execute the `configuresql.ps1` script to setup the Azure SQL database:
+
+   ```bash
+   cd infra\scripts
+   .\configuresql
+   ```
+
 1. Start Azurite (local storage emulator)
    ```bash
    npx azurite --location ~/azurite-data
