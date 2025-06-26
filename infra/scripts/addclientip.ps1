@@ -17,8 +17,11 @@ foreach ($line in $output -split "`n") {
 }
 
 # Read the config.json file to see if vnet is enabled
-$ConfigFolder = ($ResourceGroup -split '-', 2)[1]
-$jsonContent = Get-Content ".azure/$ConfigFolder/config.json" -Raw | ConvertFrom-Json
+$ScriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+$RootDir = Join-Path $ScriptDir "..\.."
+$ConfigPath = Join-Path $RootDir ".azure\config.json"
+$jsonContent = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+
 $EnableVirtualNetwork = $jsonContent.infra.parameters.vnetEnabled
 
 if ($EnableVirtualNetwork -eq $false) {

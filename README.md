@@ -76,14 +76,21 @@ This serverless architecture enables scalable, event-driven data ingestion and p
 
    The `azd` command automatically sets up the required connection strings and application settings.
 
-1. Execute the `configuresql.ps1` script to setup the Azure SQL database:
+1. Execute the `configuresql.ps1` script to set up the Azure SQL database:
 
    ```bash
    cd infra\scripts
-   .\configuresql
+   .\configuresql.ps1
+   ```
+
+1. Execute the `setuplocalenvironment.ps1` script in order to configure everything for you to run the Azure Function locally:
+
+   ```bash
+   .\setuplocalenvironment.ps1
    ```
 
 1. Start Azurite (local storage emulator)
+
    ```bash
    npx azurite --location ~/azurite-data
    ```
