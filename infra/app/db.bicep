@@ -43,18 +43,6 @@ module sqlServer 'br/public:avm/res/sql/server:0.16.1' = {
       sid: principalId
       tenantId: tenant().tenantId
     }
-    databases: [
-      {
-        name: actualDatabaseName
-        availabilityZone: -1
-        zoneRedundant: false
-        sku: {
-          name: 'GP_S_Gen5'
-          tier: 'GeneralPurpose'
-        }
-        autoPauseDelay: 60
-      }
-    ]
     firewallRules: !vnetEnabled ? [
       {
         name: 'Azure Services'
@@ -63,6 +51,28 @@ module sqlServer 'br/public:avm/res/sql/server:0.16.1' = {
       }
     ] : []
   }
+}
+
+// Create the serverless database separately using raw resource for full control
+resource database 'Microsoft.Sql/servers/databases@2024-11-01-preview' = {
+  name: '${!empty(sqlServerName) ? sqlServerName : '${abbrs.sqlServers}${resourceToken}'}/${actualDatabaseName}'
+  location: location
+  tags: tags
+  properties: {
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 34359738368
+    zoneRedundant: false
+    autoPauseDelay: 60
+    minCapacity: 1
+    requestedBackupStorageRedundancy: 'Local'
+  }
+  sku: {
+    name: 'GP_S_Gen5_1'
+    tier: 'GeneralPurpose'
+  }
+  dependsOn: [
+    sqlServer
+  ]
 }
 
 // Optional deployment script to add the API user to the database
@@ -120,6 +130,9 @@ SCRIPT_END
 ./sqlcmd -S ${DBSERVER} -d ${DBNAME} --authentication-method ActiveDirectoryManagedIdentity -U {CLIENTID-SQLADMIN} -i ./initDb.sql
     '''
   }
+  dependsOn: [
+    database
+  ]
 }
 
 // Create a keyvault to store secrets - only created if enableSQLScripts is true
@@ -141,7 +154,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.5.1' = if (enableSQLScripts
 module accessKeyVault 'br/public:avm/res/key-vault/vault:0.5.1' = if (enableSQLScripts) {
   name: 'accesskeyvault'
   params: {
-    name: keyVault.outputs.name
+    name: keyVault!.outputs.name
     enableRbacAuthorization: false
     enableVaultForDeployment: false
     enableVaultForTemplateDeployment: false
@@ -176,7 +189,7 @@ module accessKeyVault 'br/public:avm/res/key-vault/vault:0.5.1' = if (enableSQLS
 output fullyQualifiedDomainName string = sqlServer.outputs.fullyQualifiedDomainName
 output name string = sqlServer.outputs.name
 output databaseName string = actualDatabaseName
-output keyVaultName string = enableSQLScripts ? keyVault.outputs.name : ''
-output keyVaultUri string = enableSQLScripts ? keyVault.outputs.uri : ''
-output sqlAdminIdentityId string = enableSQLScripts ? sqlAdminUserAssignedIdentity.outputs.resourceId : ''
-output sqlAdminIdentityClientId string = enableSQLScripts ? sqlAdminUserAssignedIdentity.outputs.clientId : ''
+output keyVaultName string = enableSQLScripts ? keyVault!.outputs.name : ''
+output keyVaultUri string = enableSQLScripts ? keyVault!.outputs.uri : ''
+output sqlAdminIdentityId string = enableSQLScripts ? sqlAdminUserAssignedIdentity!.outputs.resourceId : ''
+output sqlAdminIdentityClientId string = enableSQLScripts ? sqlAdminUserAssignedIdentity!.outputs.clientId : ''
