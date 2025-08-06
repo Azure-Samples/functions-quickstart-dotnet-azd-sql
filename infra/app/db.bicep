@@ -48,6 +48,11 @@ module sqlServer 'br/public:avm/res/sql/server:0.16.1' = {
         name: actualDatabaseName
         availabilityZone: -1
         zoneRedundant: false
+        sku: {
+          name: 'GP_S_Gen5'
+          tier: 'GeneralPurpose'
+        }
+        autoPauseDelay: 60
       }
     ]
     firewallRules: !vnetEnabled ? [
