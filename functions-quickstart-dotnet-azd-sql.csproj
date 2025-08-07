@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>functions_quickstart_dotnet_azd_sql</RootNamespace>
-    <UserSecretsId>fedd831c-7fe2-4a3a-8275-5d1c701ed879</UserSecretsId>
+    <!-- UserSecretsId removed -->
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -14,9 +14,9 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Sql" Version="3.1.376" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.5" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
 </Project>
