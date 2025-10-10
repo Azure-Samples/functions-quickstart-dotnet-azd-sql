@@ -67,7 +67,8 @@ if (-not (Test-Path $sqlcmdPath)) {
         exit 1
     }
     Write-Host "Downloading sqlcmd from: $URL"
-    $archivePath = Join-Path $SCRIPT_DIR 'sqlcmd_download'
+    $archiveExtension = if ($URL -like '*.zip') { '.zip' } elseif ($URL -like '*.tar.bz2') { '.tar.bz2' } elseif ($URL -like '*.tar.gz') { '.tar.gz' } else { '' }
+    $archivePath = Join-Path $SCRIPT_DIR "sqlcmd_download$archiveExtension"
     Invoke-WebRequest -Uri $URL -OutFile $archivePath
     if ($URL -like '*.tar.bz2') {
         tar -xjf $archivePath -C $SCRIPT_DIR
