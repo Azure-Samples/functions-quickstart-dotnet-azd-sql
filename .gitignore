@@ -265,3 +265,10 @@ __pycache__/
 
 # Ignore sqlcmd binaries and archives
 sqlcmd*
+
+# Azurite storage emulator files
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+__azurite_db*.json
+*.db

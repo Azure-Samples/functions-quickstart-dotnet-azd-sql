@@ -18,7 +18,7 @@ public class SqlOutputBindingHttpTriggerCSharp
 
     // Visit https://aka.ms/sqlbindingsoutput to learn how to use this output binding
     [Function("httptrigger-sql-output")]
-    public async Task<OutputType> Run(
+    public OutputType Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData req,
         [FromBody] ToDoItem toDoItem
     )
@@ -44,6 +44,6 @@ public class OutputType
     [SqlOutput("dbo.ToDo", connectionStringSetting: "AZURE_SQL_CONNECTION_STRING_KEY")]
     public required ToDoItem ToDoItem { get; set; }
 
-    //[HttpResponse]
+    [HttpResult]
     public required IActionResult HttpResponse { get; set; }
 }

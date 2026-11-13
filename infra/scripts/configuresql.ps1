@@ -74,7 +74,7 @@ if (-not (Test-Path $sqlcmdPath)) {
     } elseif ($URL -like '*.tar.gz') {
         tar -xzf $archivePath -C $SCRIPT_DIR
     } elseif ($URL -like '*.zip') {
-        Expand-Archive -Path $archivePath -DestinationPath $SCRIPT_DIR
+        Expand-Archive -Path $archivePath -DestinationPath $SCRIPT_DIR -Force
     } else {
         Write-Host "Unknown archive format for $URL"
         exit 1
