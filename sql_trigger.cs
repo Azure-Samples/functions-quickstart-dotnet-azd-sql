@@ -1,6 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.Sql;
-using Microsoft.Extensions.Logging;
 
 namespace AzureSQL.ToDo;
 
@@ -17,7 +16,7 @@ public static class ToDoTrigger
         foreach (SqlChange<ToDoItem> change in changes)
         {
             logger.LogInformation($"Change operation: {change.Operation}");
-            
+
             // Handle different operation types
             switch (change.Operation)
             {
@@ -36,7 +35,7 @@ public static class ToDoTrigger
                         logger.LogWarning($"{change.Operation} operation but item is null");
                     }
                     break;
-                    
+
                 case SqlChangeOperation.Delete:
                     // For DELETE operations, we need to check what data is available
                     // The Item might be null or have limited data since the row was deleted
@@ -56,7 +55,7 @@ public static class ToDoTrigger
                         logger.LogInformation("Item was deleted but no item data is available");
                     }
                     break;
-                    
+
                 default:
                     logger.LogWarning($"Unknown operation type: {change.Operation}");
                     break;

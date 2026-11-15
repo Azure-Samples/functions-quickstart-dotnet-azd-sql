@@ -76,6 +76,9 @@ param principalId string = ''
 
 param sqlDatabaseName string = ''
 
+@description('Keep one SQL trigger instance always ready to work around managed-identity scale-from-zero limitations. Adds a continuous baseline charge. Enabled by default until the platform fix is deployed.')
+param sqlTriggerAlwaysReady bool = true
+
 var deploymentStorageContainerName = 'app-package-${take(functionAppName, 32)}-${take(toLower(uniqueString(functionAppName, resourceToken)), 7)}'
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -129,6 +132,12 @@ module api './app/api.bicep' = {
     appServicePlanId: appServicePlan.outputs.resourceId
     runtimeName: 'dotnet-isolated'
     runtimeVersion: '10.0'
+    alwaysReady: sqlTriggerAlwaysReady ? [
+      {
+        name: 'function:sql_trigger_todo'
+        instanceCount: 1
+      }
+    ] : []
     storageAccountName: storage.outputs.name
     enableBlob: storageEndpointConfig.enableBlob
     enableQueue: storageEndpointConfig.enableQueue
@@ -331,7 +340,6 @@ output USER_ASSIGNED_IDENTITY_PRINCIPAL_ID string = apiUserAssignedIdentity.outp
 output USER_ASSIGNED_IDENTITY_NAME string = apiUserAssignedIdentity.outputs.name
 
 // App outputs
-output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.connectionString
 output AZURE_KEY_VAULT_ENDPOINT string = enableSQLScripts ? db.outputs.keyVaultUri : ''
 output AZURE_KEY_VAULT_NAME string = enableSQLScripts ? db.outputs.keyVaultName : ''
 output AZURE_LOCATION string = location

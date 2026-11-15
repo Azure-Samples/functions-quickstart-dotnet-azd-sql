@@ -11,6 +11,9 @@
     "principalId": {
       "value": "${AZURE_PRINCIPAL_ID}"
     },
+    "sqlTriggerAlwaysReady": {
+      "value": "${SQL_TRIGGER_ALWAYS_READY=true}"
+    },
     "apimSku": {
       "value": "${APIM_SKU=Consumption}"
     },
