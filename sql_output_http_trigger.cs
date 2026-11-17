@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.Sql;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using FromBodyAttribute = Microsoft.Azure.Functions.Worker.Http.FromBodyAttribute;
 
 namespace AzureSQL.ToDo;
@@ -26,6 +25,11 @@ public class SqlOutputBindingHttpTriggerCSharp
         _logger.LogInformation(
             "C# HTTP trigger with SQL Output Binding function processed a request."
         );
+
+        if (toDoItem.Id == Guid.Empty)
+        {
+            toDoItem.Id = Guid.NewGuid();
+        }
 
         return new OutputType
         {

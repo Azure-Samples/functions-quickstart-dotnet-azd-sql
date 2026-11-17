@@ -13,6 +13,7 @@ param deploymentStorageContainerName string
 param virtualNetworkSubnetId string = ''
 param instanceMemoryMB int = 512
 param maximumInstanceCount int = 100
+param alwaysReady array = []
 param identityId string = ''
 param identityClientId string = ''
 param sqlAdminIdentityId string = ''
@@ -35,9 +36,12 @@ var baseAppSettings = {
   AzureWebJobsStorage__clientId: identityClientId
   
   // Application Insights settings are always included
+  AzureMonitorExporter__credential: 'managedidentity'
   APPLICATIONINSIGHTS_AUTHENTICATION_STRING: applicationInsightsIdentity
   APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.properties.ConnectionString
 }
+
+var monitorExporterIdentitySettings = identityType == 'UserAssigned' ? { AzureMonitorExporter__clientId: identityClientId } : {}
 
 // Dynamically build storage endpoint settings based on feature flags
 var blobSettings = enableBlob ? { AzureWebJobsStorage__blobServiceUri: stg.properties.primaryEndpoints.blob } : {}
@@ -52,7 +56,8 @@ var allAppSettings = union(
   queueSettings,
   tableSettings,
   fileSettings,
-  baseAppSettings
+  baseAppSettings,
+  monitorExporterIdentitySettings
 )
 
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
@@ -90,6 +95,7 @@ module api 'br/public:avm/res/web/site:0.15.1' = {
         }
       }
       scaleAndConcurrency: {
+        alwaysReady: alwaysReady
         instanceMemoryMB: instanceMemoryMB
         maximumInstanceCount: maximumInstanceCount
       }
