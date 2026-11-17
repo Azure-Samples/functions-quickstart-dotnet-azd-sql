@@ -95,13 +95,13 @@ if [ ! -x "$SQLCMD_PATH" ]; then
 fi
 
 # Run the scripts using sqlcmd from $SCRIPT_DIR
-echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -i $SCRIPT_DIR/sql_create_table.sql"
+echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -b -i $SCRIPT_DIR/sql_create_table.sql"
 "$SQLCMD_PATH" -S "$SQL_SERVER" -d "$SQL_DATABASE" -G -b -i "$SCRIPT_DIR/sql_create_table.sql"
 
-echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -v SQL_DATABASE=\"$SQL_DATABASE\" -i $SCRIPT_DIR/sql_enable_change_tracking.sql"
+echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -b -v SQL_DATABASE=\"$SQL_DATABASE\" -i $SCRIPT_DIR/sql_enable_change_tracking.sql"
 "$SQLCMD_PATH" -S "$SQL_SERVER" -d "$SQL_DATABASE" -G -b -v SQL_DATABASE="$SQL_DATABASE" -i "$SCRIPT_DIR/sql_enable_change_tracking.sql"
 
-echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -v UAMI_NAME=\"$UAMI_NAME\" -v UAMI_CLIENT_ID=\"$UAMI_CLIENT_ID\" -i $SCRIPT_DIR/sql_add_uami_user.sql"
+echo "$SQLCMD_PATH -S $SQL_SERVER -d $SQL_DATABASE -G -b -v UAMI_NAME=\"$UAMI_NAME\" -v UAMI_CLIENT_ID=\"$UAMI_CLIENT_ID\" -i $SCRIPT_DIR/sql_add_uami_user.sql"
 "$SQLCMD_PATH" -S "$SQL_SERVER" -d "$SQL_DATABASE" -G -b -v UAMI_NAME="$UAMI_NAME" -v UAMI_CLIENT_ID="$UAMI_CLIENT_ID" -i "$SCRIPT_DIR/sql_add_uami_user.sql"
 
 echo "SQL configuration complete."
